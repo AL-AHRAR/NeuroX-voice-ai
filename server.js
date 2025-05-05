@@ -28,7 +28,7 @@ if (!elevenLabsVoiceId) {
 
 // --- تحديد نماذج API المطلوبة (تم التعديل هنا حسب الطلب) ---
 const geminiModelName = 'gemini-2.0-flash'; // <-- تم التعديل هنا
-const elevenLabsModelId = 'eleven_flash_v2';   // <-- تم التعديل هنا
+const elevenLabsModelId = 'eleven_flash_v2_5';   // <-- تم التعديل هنا
 
 // --- إعدادات Middleware ---
 app.use(cors());
