@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const path = require('path'); // تأكد من وجود هذا السطر
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,11 +11,11 @@ const port = process.env.PORT || 3000;
 // --- التحقق من وجود مفاتيح API ---
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
-const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID; // هذا هو الصوت الافتراضي
+const elevenLabsVoiceId = process.env.ELEVENLABS_VOICE_ID;
 
 if (!geminiApiKey) {
     console.error("!!!!!!!!!! خطأ فادح: مفتاح Gemini API غير موجود في ملف .env !!!!!!!!!!");
-    process.exit(1); // إنهاء العملية إذا كان المفتاح مفقودًا
+    process.exit(1);
 }
 if (!elevenLabsApiKey) {
     console.error("!!!!!!!!!! خطأ فادح: مفتاح ElevenLabs API غير موجود في ملف .env !!!!!!!!!!");
@@ -26,23 +26,19 @@ if (!elevenLabsVoiceId) {
     process.exit(1);
 }
 
-// --- تحديد نماذج API المطلوبة (تم التعديل هنا حسب الطلب) ---
-const geminiModelName = 'gemini-2.0-flash'; // <-- تم التعديل هنا
-const elevenLabsModelId = 'eleven_flash_v2_5';   // <-- تم التعديل هنا
+// --- تحديد نماذج API المطلوبة ---
+const geminiModelName = 'gemini-2.0-flash'; // النموذج المحدد مسبقًا
+const elevenLabsModelId = 'eleven_turbo_v2_5';   // النموذج المحدد مسبقًا
 
 // --- إعدادات Middleware ---
 app.use(cors());
 app.use(express.json());
-
-// *** التعديل المطلوب هنا ***
-// يفترض هذا المسار أن مجلد 'public' موجود في نفس المجلد الذي يوجد به 'server.js'
 app.use(express.static(path.join(__dirname, 'public')));
-// *** نهاية التعديل المطلوب ***
 
 // --- نقطة النهاية (Endpoint) الرئيسية لواجهة برمجة التطبيقات ---
 app.post('/api/generate-speech', async (req, res) => {
     const userText = req.body.text;
-    const selectedVoiceId = req.body.voiceId; // الحصول على معرف الصوت من الطلب
+    const selectedVoiceId = req.body.voiceId;
 
     if (!userText || typeof userText !== 'string' || userText.trim() === '') {
         console.warn(`[${new Date().toISOString()}] طلب غير صالح: النص مفقود أو فارغ.`);
@@ -59,21 +55,41 @@ app.post('/api/generate-speech', async (req, res) => {
         // --- 1. استدعاء Gemini API للحصول على الرد النصي ---
         console.log(`--> جارٍ استدعاء Gemini API (النموذج: ${geminiModelName})...`);
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModelName}:generateContent?key=${geminiApiKey}`;
+
+        // *** التعديل الرئيسي هنا: إضافة System Prompt ***
+        const systemPrompt = `أنت مساعد ذكاء اصطناعي تم تطويرك بواسطة NeuroX للذكاء الاصطناعي ضمن أبحاث الشركة الاستثمارية.
+رد بلطف بشكل افتراضي، ولكن إذا كانت رسالة المستخدم مستفزة أو مثيرة للغضب، يمكنك محاكاة رد يعكس الغضب.
+قدم إجاباتك دائماً بجمل احترافية، ومنظمة بشكل جيد، واستخدم علامات الترقيم المناسبة (مثل الفواصل والنقاط) لضمان أفضل جودة عند تحويل النص إلى كلام.`;
+
         const geminiPayload = {
-             // استخدم نفس الإعدادات من ملفك الأصلي
-             "contents": [{
-                 "parts": [{ "text": sanitizedUserText }]
-             }],
-             "safetySettings": [
+             "contents": [
+                 // System Prompt كجزء من السياق الأولي
+                 {
+                     "role": "user",
+                     "parts": [{ "text": systemPrompt }]
+                 },
+                  // استجابة نموذجية متوقعة لتأكيد فهم التعليمات (اختياري ولكن قد يساعد)
+                  {
+                      "role": "model",
+                      "parts": [{"text": "مفهوم. سألتزم بهذه التعليمات."}]
+                  },
+                 // رسالة المستخدم الحالية
+                 {
+                     "role": "user",
+                     "parts": [{ "text": sanitizedUserText }]
+                 }
+             ],
+             "safetySettings": [ // إعدادات السلامة تبقى كما هي
                { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
                { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
                { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
                { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE" },
              ],
              "generationConfig": {
-                // يمكنك إضافة إعدادات هنا
+                // يمكنك إضافة إعدادات هنا إذا لزم الأمر
              },
         };
+        // *** نهاية التعديل الرئيسي ***
 
         const geminiResponse = await axios.post(geminiUrl, geminiPayload, {
             headers: { 'Content-Type': 'application/json' },
@@ -84,7 +100,7 @@ app.post('/api/generate-speech', async (req, res) => {
         let blockReason = null;
         let finishReason = null;
 
-         // منطق معالجة استجابة Gemini (كما هو في ملفك الأصلي)
+        // منطق معالجة استجابة Gemini (كما هو في ملفك الأصلي)
         if (geminiResponse.data?.promptFeedback?.blockReason) {
              blockReason = geminiResponse.data.promptFeedback.blockReason;
              console.warn(`[WARN] تم حظر الرد من Gemini بسبب: ${blockReason}`);
@@ -97,7 +113,6 @@ app.post('/api/generate-speech', async (req, res) => {
                   if (finishReason === 'MAX_TOKENS') generatedText += '...';
              }
          } else if (geminiResponse.data?.candidates?.[0]?.finishReason === 'SAFETY') {
-             // حالة خاصة إذا تم حظر المرشح بسبب الأمان
              blockReason = 'SAFETY';
              console.warn(`[WARN] تم حظر الرد من Gemini بسبب: ${blockReason}`);
              generatedText = `عذراً، لا يمكنني الرد على هذا الطلب بسبب قيود المحتوى (${blockReason}).`;
@@ -115,25 +130,28 @@ app.post('/api/generate-speech', async (req, res) => {
         // --- 2. استدعاء ElevenLabs API لتحويل النص إلى صوت ---
         if (blockReason || !generatedText || generatedText.startsWith("عذراً، لا يمكنني الرد")) {
             console.log("--> تخطي استدعاء ElevenLabs بسبب رد Gemini المحظور أو الفارغ أو رسالة الخطأ.");
-             // إرسال الخطأ كـ JSON إذا فشل توليد النص
             return res.status(400).json({
                  error: "فشل توليد النص من Gemini",
-                 details: generatedText // إرسال رسالة الخطأ للمستخدم
+                 details: generatedText
              });
         }
 
         console.log(`--> جارٍ استدعاء ElevenLabs API (النموذج: ${elevenLabsModelId}, الصوت: ${voiceToUse})...`);
         const elevenLabsUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceToUse}`;
+
+        // --- التأكد من إعدادات ElevenLabs المطلوبة ---
         const elevenLabsPayload = {
             text: generatedText,
-            model_id: elevenLabsModelId, // يستخدم النموذج المعدل
-            voice_settings: { // استخدم نفس الإعدادات من ملفك الأصلي
-                stability: 0.5,
-                similarity_boost: 0.8,
-                style: 0.1,
-                use_speaker_boost: true
+            model_id: elevenLabsModelId, // يستخدم النموذج المحدد 'eleven_flash_v2'
+            voice_settings: {
+                stability: 0.5,           // يتطابق مع الصورة (50%)
+                similarity_boost: 0.8,  // يتطابق مع الصورة (80%)
+                style: 0.1,               // قيمة افتراضية، يمكنك تعديلها إذا أردت تجربة تأثيرات أخرى
+                use_speaker_boost: true   // إعداد قياسي
             }
         };
+        // ---------------------------------------------
+
         const elevenLabsHeaders = {
             'Accept': 'audio/mpeg',
             'Content-Type': 'application/json',
@@ -148,7 +166,6 @@ app.post('/api/generate-speech', async (req, res) => {
 
         if (!audioResponse.data || audioResponse.data.length < 500) {
             console.warn(`[WARN] حجم البيانات الصوتية المستلمة صغير جداً (${audioResponse.data?.length || 0} بايت).`);
-            // قد يكون من الأفضل إرسال خطأ هنا إذا كان الحجم صغيرًا بشكل غير طبيعي
             return res.status(500).json({ error: 'فشل توليد الصوت، تم استلام بيانات غير مكتملة.' });
         } else {
              console.log(`<-- تم استلام بيانات صوتية من ElevenLabs (الحجم: ${audioResponse.data.length} بايت).`);
@@ -161,6 +178,7 @@ app.post('/api/generate-speech', async (req, res) => {
         res.send(audioResponse.data);
 
     } catch (error) {
+        // --- قسم معالجة الأخطاء (يبقى كما هو، تأكد من أنه يعالج أخطاء النموذج إذا كانت غير صحيحة) ---
         console.error(`!!!!! [${new Date().toISOString()}] حدث خطأ فادح أثناء معالجة الطلب !!!!!`);
         let errorMsg = 'حدث خطأ غير متوقع في الخادم أثناء معالجة طلبك.';
         let statusCode = 500;
@@ -181,14 +199,13 @@ app.post('/api/generate-speech', async (req, res) => {
              let detailMessage = `Status ${statusCode}`;
              try {
                  if (error.response.data instanceof ArrayBuffer) {
-                     // Attempt to decode ArrayBuffer as UTF-8 text for potential JSON error
                      const decoder = new TextDecoder('utf-8');
                      const errorJson = JSON.parse(decoder.decode(error.response.data));
                      detailMessage = errorJson.detail?.message || errorJson.detail || JSON.stringify(errorJson);
                  } else if (typeof error.response.data === 'object' && error.response.data !== null) {
                      detailMessage = error.response.data.detail?.message || error.response.data.detail || error.response.data.error?.message || error.response.data.message || JSON.stringify(error.response.data);
                  } else if (typeof error.response.data === 'string') {
-                     detailMessage = error.response.data.substring(0, 200); // Limit length
+                     detailMessage = error.response.data.substring(0, 200);
                  }
              } catch (e) {
                  console.warn("Could not parse error response data:", e);
@@ -202,9 +219,8 @@ app.post('/api/generate-speech', async (req, res) => {
              errorDetails = { status: statusCode, message: detailMessage };
              console.error(`[ERROR] خطأ من ${errorSource} (الحالة ${statusCode}):`, JSON.stringify(errorDetails, null, 2));
 
-             // Handle specific known errors
+             // Handle specific known errors (تأكد من تغطية أخطاء النموذج غير الصحيح)
              if (errorSource === 'ElevenLabs API' && (typeof detailMessage === 'string' && detailMessage.includes('does not exist'))) {
-                 // Check if error is about the model or the voice ID
                  if (detailMessage.includes(elevenLabsModelId)) {
                      errorMsg = `خطأ في الإعداد: نموذج ElevenLabs المحدد (${elevenLabsModelId}) غير موجود أو غير صحيح.`;
                      console.error(`!!!! [CONFIG ERROR] تأكد من صحة اسم نموذج ElevenLabs: ${elevenLabsModelId} !!!!`)
@@ -220,13 +236,13 @@ app.post('/api/generate-speech', async (req, res) => {
              } else if (errorSource === 'Gemini API' && statusCode === 400) {
                  errorMsg = "خطأ في طلب Gemini (قد يكون النص غير صالح أو مشكلة في الإعدادات أو اسم النموذج غير صحيح).";
                  console.error(`[API ERROR] Gemini bad request details: ${detailMessage}`);
-                 if (detailMessage.includes('model')) {
-                     console.error(`!!!! [CONFIG ERROR] تأكد من صحة اسم نموذج Gemini: ${geminiModelName} !!!!`);
+                 if (detailMessage.includes('model') || detailMessage.includes('User location is not supported')) { // Check for model error or region error
+                     console.error(`!!!! [CONFIG ERROR] تأكد من صحة اسم نموذج Gemini (${geminiModelName}) أو أن منطقتك مدعومة !!!!`);
                  }
              } else if (errorSource === 'Gemini API' && statusCode === 401) {
                  errorMsg = "خطأ في المصادقة مع Gemini. تأكد من صحة مفتاح API.";
                   console.error("!!!! [CONFIG ERROR] تأكد من صحة GEMINI_API_KEY في ملف .env أو متغيرات البيئة !!!!")
-              } else if (errorSource === 'Gemini API' && statusCode === 404) { // Handle model not found for Gemini
+              } else if (errorSource === 'Gemini API' && statusCode === 404) {
                   errorMsg = `خطأ: نموذج Gemini المحدد (${geminiModelName}) غير موجود أو لا يمكن الوصول إليه.`;
                   console.error(`!!!! [CONFIG ERROR] تأكد من أن نموذج Gemini '${geminiModelName}' صحيح ومتاح لك !!!!`);
               }
@@ -239,39 +255,32 @@ app.post('/api/generate-speech', async (req, res) => {
              console.error('[ERROR] خطأ في الطلب (لا استجابة):', error.message);
              errorDetails = { message: error.message };
         } else {
-             // Error setting up the request or other internal error
              errorSource = 'Server Logic';
              errorMsg = 'حدث خطأ داخلي أثناء إعداد الطلب أو معالجته.';
              console.error('[ERROR] خطأ عام في الخادم:', error.message, error.stack);
              errorDetails = { message: error.message };
         }
 
-         // إرسال استجابة خطأ JSON موحدة للواجهة الأمامية
          if (!res.headersSent) {
-              // لا ترسل تفاصيل الخطأ الداخلية الكاملة في الإنتاج
               const clientErrorDetails = (process.env.NODE_ENV === 'production' && statusCode >= 500)
-                  ? { source: errorSource } // تفاصيل أقل في الإنتاج للأخطاء الداخلية
+                  ? { source: errorSource }
                   : errorDetails;
 
              res.status(statusCode).json({
                  error: errorMsg,
-                 details: clientErrorDetails // إرسال تفاصيل الخطأ للعميل
+                 details: clientErrorDetails
              });
          }
     }
 });
 
 // --- معالج للمسار الجذر لتقديم index.html ---
-// تأكد من أن هذا المسار صحيح ويعمل مع المسار المعدل لـ express.static
 app.get('/', (req, res) => {
-  // بما أن express.static يعالج '/' لـ index.html، قد لا تحتاج لهذا
-  // ولكن من الجيد تركه كـ fallback أو إذا أردت تقديم ملف معين
   const indexPath = path.join(__dirname, 'public', 'index.html');
   res.sendFile(indexPath, (err) => {
       if (err) {
           console.error(`[ERROR] خطأ في إرسال index.html: ${err.message}`);
           if (!res.headersSent) {
-              // إرسال خطأ 404 إذا لم يتم العثور على index.html
               res.status(404).send("الصفحة الرئيسية غير موجودة.");
           }
       }
@@ -279,11 +288,8 @@ app.get('/', (req, res) => {
 });
 
 // --- معالج للطلبات غير المعروفة (404) ---
-// يجب أن يكون هذا المعالج **بعد** كل المسارات الأخرى و express.static
 app.use((req, res, next) => {
   if (!res.headersSent) {
-       // لا تحاول إرسال ملف 404.html إذا كان express.static سيعالجه
-       // فقط أرسل استجابة 404 نصية أو JSON
        console.warn(`[${new Date().toISOString()}] طلب لمسار غير موجود (404): ${req.method} ${req.originalUrl}`);
        res.status(404).json({ error: 'المورد المطلوب غير موجود' });
   }
@@ -294,8 +300,9 @@ app.use((req, res, next) => {
 app.listen(port, () => {
     console.log(`\n🚀 الخادم يعمل الآن على المنفذ ${port}.`);
     console.log(`🔗 الوصول للواجهة: http://localhost:${port}`);
-    console.log(`🧠 نموذج Gemini المستخدم: ${geminiModelName}`); // سيعرض الاسم الجديد
-    console.log(`🔊 نموذج ElevenLabs المستخدم: ${elevenLabsModelId}`); // سيعرض الاسم الجديد
+    console.log(`🧠 نموذج Gemini المستخدم: ${geminiModelName} (مع تعليمات أولية مخصصة)`); // تم تحديث الرسالة
+    console.log(`🔊 نموذج ElevenLabs المستخدم: ${elevenLabsModelId}`);
+    console.log(`📊 إعدادات الصوت لـ ElevenLabs: stability=${elevenLabsPayload.voice_settings.stability}, similarity_boost=${elevenLabsPayload.voice_settings.similarity_boost}`); // عرض الإعدادات المستخدمة
     console.log(`🗣️ الصوت الافتراضي لـ ElevenLabs: ${elevenLabsVoiceId}`);
     console.log(`🔑 مفاتيح API ${geminiApiKey && elevenLabsApiKey ? 'تم تحميلها (أو سيتم استخدامها من البيئة)' : '!!! بعض المفاتيح مفقودة !!!'}.`);
     console.log(`📡 نقطة النهاية: POST /api/generate-speech\n`);
