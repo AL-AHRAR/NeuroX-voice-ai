@@ -26,9 +26,9 @@ if (!elevenLabsVoiceId) {
     process.exit(1);
 }
 
-// --- تحديد نماذج API المطلوبة (لم يتم تغييرها حسب الطلب) ---
-const geminiModelName = 'gemini-1.5-flash'; // أو أي نموذج آخر تفضله
-const elevenLabsModelId = 'eleven_multilingual_v2'; // أو أي نموذج آخر تفضله
+// --- تحديد نماذج API المطلوبة (تم التعديل هنا حسب الطلب) ---
+const geminiModelName = 'gemini-2.0-flash'; // <-- تم التعديل هنا
+const elevenLabsModelId = 'eleven_flash_v2';   // <-- تم التعديل هنا
 
 // --- إعدادات Middleware ---
 app.use(cors());
@@ -126,7 +126,7 @@ app.post('/api/generate-speech', async (req, res) => {
         const elevenLabsUrl = `https://api.elevenlabs.io/v1/text-to-speech/${voiceToUse}`;
         const elevenLabsPayload = {
             text: generatedText,
-            model_id: elevenLabsModelId,
+            model_id: elevenLabsModelId, // يستخدم النموذج المعدل
             voice_settings: { // استخدم نفس الإعدادات من ملفك الأصلي
                 stability: 0.5,
                 similarity_boost: 0.8,
@@ -204,17 +204,31 @@ app.post('/api/generate-speech', async (req, res) => {
 
              // Handle specific known errors
              if (errorSource === 'ElevenLabs API' && (typeof detailMessage === 'string' && detailMessage.includes('does not exist'))) {
-                 errorMsg = `خطأ في الإعداد: معرف الصوت المحدد (${voiceToUse}) لـ ElevenLabs غير موجود أو غير صحيح.`;
-                 console.error(`!!!! [CONFIG ERROR] تأكد من صحة معرف الصوت: ${voiceToUse} !!!!`)
+                 // Check if error is about the model or the voice ID
+                 if (detailMessage.includes(elevenLabsModelId)) {
+                     errorMsg = `خطأ في الإعداد: نموذج ElevenLabs المحدد (${elevenLabsModelId}) غير موجود أو غير صحيح.`;
+                     console.error(`!!!! [CONFIG ERROR] تأكد من صحة اسم نموذج ElevenLabs: ${elevenLabsModelId} !!!!`)
+                 } else if (detailMessage.includes(voiceToUse)) {
+                    errorMsg = `خطأ في الإعداد: معرف الصوت المحدد (${voiceToUse}) لـ ElevenLabs غير موجود أو غير صحيح.`;
+                    console.error(`!!!! [CONFIG ERROR] تأكد من صحة معرف الصوت: ${voiceToUse} !!!!`)
+                 } else {
+                    errorMsg = `خطأ في الإعداد مع ElevenLabs: ${detailMessage}`;
+                 }
              } else if (errorSource === 'ElevenLabs API' && statusCode === 401) {
                  errorMsg = "خطأ في المصادقة مع ElevenLabs. تأكد من صحة مفتاح API.";
                  console.error("!!!! [CONFIG ERROR] تأكد من صحة ELEVENLABS_API_KEY في ملف .env أو متغيرات البيئة !!!!")
              } else if (errorSource === 'Gemini API' && statusCode === 400) {
-                 errorMsg = "خطأ في طلب Gemini (قد يكون النص غير صالح أو مشكلة في الإعدادات).";
+                 errorMsg = "خطأ في طلب Gemini (قد يكون النص غير صالح أو مشكلة في الإعدادات أو اسم النموذج غير صحيح).";
                  console.error(`[API ERROR] Gemini bad request details: ${detailMessage}`);
+                 if (detailMessage.includes('model')) {
+                     console.error(`!!!! [CONFIG ERROR] تأكد من صحة اسم نموذج Gemini: ${geminiModelName} !!!!`);
+                 }
              } else if (errorSource === 'Gemini API' && statusCode === 401) {
                  errorMsg = "خطأ في المصادقة مع Gemini. تأكد من صحة مفتاح API.";
                   console.error("!!!! [CONFIG ERROR] تأكد من صحة GEMINI_API_KEY في ملف .env أو متغيرات البيئة !!!!")
+              } else if (errorSource === 'Gemini API' && statusCode === 404) { // Handle model not found for Gemini
+                  errorMsg = `خطأ: نموذج Gemini المحدد (${geminiModelName}) غير موجود أو لا يمكن الوصول إليه.`;
+                  console.error(`!!!! [CONFIG ERROR] تأكد من أن نموذج Gemini '${geminiModelName}' صحيح ومتاح لك !!!!`);
               }
 
 
@@ -280,8 +294,8 @@ app.use((req, res, next) => {
 app.listen(port, () => {
     console.log(`\n🚀 الخادم يعمل الآن على المنفذ ${port}.`);
     console.log(`🔗 الوصول للواجهة: http://localhost:${port}`);
-    console.log(`🧠 نموذج Gemini المستخدم: ${geminiModelName}`);
-    console.log(`🔊 نموذج ElevenLabs المستخدم: ${elevenLabsModelId}`);
+    console.log(`🧠 نموذج Gemini المستخدم: ${geminiModelName}`); // سيعرض الاسم الجديد
+    console.log(`🔊 نموذج ElevenLabs المستخدم: ${elevenLabsModelId}`); // سيعرض الاسم الجديد
     console.log(`🗣️ الصوت الافتراضي لـ ElevenLabs: ${elevenLabsVoiceId}`);
     console.log(`🔑 مفاتيح API ${geminiApiKey && elevenLabsApiKey ? 'تم تحميلها (أو سيتم استخدامها من البيئة)' : '!!! بعض المفاتيح مفقودة !!!'}.`);
     console.log(`📡 نقطة النهاية: POST /api/generate-speech\n`);
