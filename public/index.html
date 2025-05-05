@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<!-- lang and dir will be set by JS -->
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- Title will be set by JS -->
+    <title data-translate-key="appTitle">NeuroX - التفاعل الصوتي</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- iOS Specific Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+</head>
+<!-- Theme class will be added by JS -->
+<body>
+
+    <!-- ==== Welcome Modal Overlay (Enhanced Multi-Tab) ==== -->
+    <div id="welcome-modal-overlay" class="modal-overlay">
+        <div id="welcome-modal-content" class="modal-content">
+            <!-- Tabs Header -->
+            <div class="modal-header-tabs">
+                <button class="modal-tab-btn active" data-tab="updates" data-translate-key="welcomeTabUpdates">التحديثات</button>
+                <button class="modal-tab-btn" data-tab="about" data-translate-key="welcomeTabAbout">عن NeuroX</button>
+                <button class="modal-tab-btn" data-tab="privacy" data-translate-key="welcomeTabPrivacy">الخصوصية</button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="modal-tab-content-container">
+                <!-- Panel 1: Updates (Visible by default) -->
+                <div id="modal-tab-updates" class="modal-tab-panel visible">
+                    <h2 class="modal-title" data-translate-key="welcomeUpdateTitle">تحديث NeuroX</h2>
+                    <div class="modal-body" id="modal-scrollable-body-updates">
+                        <p data-translate-key="welcomeUpdateDesc">تم تحديث NeuroX بميزات جديدة وتحسينات في الأداء لتجربة تفاعل صوتي أفضل.</p>
+                        <p><strong data-translate-key="welcomeUpdateHighlights">أبرز الجديد:</strong></p>
+                        <ul>
+                            <!-- Note: Keys are on the <li>. JS must be careful not to overwrite <strong> if it existed -->
+                            <li data-translate-key="welcomeUpdatePoint1">سرعة استجابة فائقة.</li>
+                            <li data-translate-key="welcomeUpdatePoint2">فهم سياقي مُحسَّن.</li>
+                            <li data-translate-key="welcomeUpdatePoint3">جودة صوت أفضل.</li>
+                            <li data-translate-key="welcomeUpdatePoint4">واجهة مستخدم مُجدَّدة.</li>
+                            <li data-translate-key="welcomeUpdatePoint5">أساس لميزات مستقبلية.</li>
+                        </ul>
+                        <p data-translate-key="welcomeUpdateConsent">استخدامك يعني موافقتك على الشروط المحدثة.</p>
+                    </div>
+                     <div class="modal-button-group single-button">
+                        <button id="accept-terms-btn" class="modal-button primary" data-translate-key="continueBtn">متابعة</button>
+                    </div>
+                </div>
+
+                <!-- Panel 2: About -->
+                <div id="modal-tab-about" class="modal-tab-panel hidden">
+                    <h2 class="modal-title" data-translate-key="welcomeAboutTitle">ما هو NeuroX؟</h2>
+                    <div class="modal-body" id="modal-scrollable-body-about">
+                        <p data-translate-key="welcomeAboutDesc1">NeuroX هو مساعد صوتي ذكي مصمم لفهمك والتفاعل معك بشكل طبيعي وسلس.</p>
+                        <p data-translate-key="welcomeAboutDesc2">نحن نستخدم تقنيات متقدمة في معالجة اللغة الطبيعية وتوليد الكلام لنقدم لك تجربة سلسة وفعالة، مع التركيز على السرعة والدقة.</p>
+                        <p><strong data-translate-key="welcomeAboutFeatHead">مميزات رئيسية:</strong></p>
+                        <ul>
+                            <!-- Note: Keys are on the <li>. JS must handle the <strong> inside correctly -->
+                            <li data-translate-key="welcomeAboutFeat1"><strong>فهم السياق:</strong> يتذكر NeuroX مجرى الحديث لتقديم ردود أكثر ملاءمة.</li>
+                            <li data-translate-key="welcomeAboutFeat2"><strong>استجابة سريعة:</strong> مُحسَّن لتقديم الردود بأقل تأخير ممكن.</li>
+                            <li data-translate-key="welcomeAboutFeat3"><strong>صوت طبيعي:</strong> استمع إلى ردود صوتية واضحة وطبيعية باللغة التي تختارها.</li>
+                            <li data-translate-key="welcomeAboutFeat4"><strong>واجهة بسيطة:</strong> تصميم يركز على سهولة الاستخدام والوصول السريع للميزات.</li>
+                        </ul>
+                        <p data-translate-key="welcomeAboutDesc3"><strong>هدفنا:</strong> جعل التفاعل الصوتي بسيطًا ومفيدًا ومتاحًا للجميع، مع احترام خصوصيتك.</p>
+                    </div>
+                     <div class="modal-button-group single-button">
+                        <button class="modal-button primary close-modal-btn" data-translate-key="gotItBtn">فهمت</button>
+                    </div>
+                </div>
+
+                <!-- Panel 3: Privacy -->
+                <div id="modal-tab-privacy" class="modal-tab-panel hidden">
+                     <h2 class="modal-title" data-translate-key="welcomePrivacyTitle">سياسة الخصوصية</h2>
+                    <div class="modal-body" id="modal-scrollable-body-privacy">
+                        <p data-translate-key="welcomePrivacyDesc1">نحن في NeuroX نأخذ خصوصيتك على محمل الجد ونلتزم بحماية بياناتك الشخصية.</p>
+                        <p data-translate-key="welcomePrivacyDesc2"><strong>كيف نستخدم بياناتك:</strong></p>
+                        <ul>
+                            <!-- Note: Keys are on the <li>. JS must handle the <strong> inside correctly -->
+                            <li data-translate-key="welcomePrivacyPoint1">تُستخدم مدخلاتك الصوتية والنصية <strong data-translate-key="onlyStrong">فقط</strong> لمعالجة طلباتك وتوليد الردود المناسبة من خلال نماذج الذكاء الاصطناعي.</li>
+                            <li data-translate-key="welcomePrivacyPoint2">قد نجمع بيانات استخدام مجهولة المصدر (مثل نوع الطلبات، مدة الاستجابة، حدوث أخطاء) لتحسين أداء التطبيق ودقة النماذج. هذه البيانات لا ترتبط بك شخصيًا.</li>
+                            <li data-translate-key="welcomePrivacySecure1"><strong>أمان البيانات:</strong> نستخدم تدابير أمنية قياسية لحماية بياناتك أثناء النقل والتخزين.</li>
+                             <li data-translate-key="welcomePrivacyPoint3"><strong>عدم المشاركة:</strong> لا نشارك بياناتك الصوتية أو النصية أو أي معلومات تعريف شخصية مع أطراف ثالثة لأغراض تجارية أو إعلانية دون موافقتك الصريحة.</li>
+                            <li data-translate-key="welcomePrivacyControl1"><strong>التحكم والشفافية:</strong> يمكنك مسح سجل محادثاتك المخزن محليًا في أي وقت من خلال إعدادات التطبيق.</li>
+                        </ul>
+                         <p data-translate-key="welcomePrivacyDesc4">نحن نستخدم واجهات برمجة تطبيقات (APIs) خارجية لمعالجة اللغة وتوليد الصوت. قد تخضع هذه الخدمات لسياسات الخصوصية الخاصة بها.</p>
+                        <!-- Note: Key is on the <p>, contains an <a> -->
+                        <p data-translate-key="welcomePrivacyDesc3">للمزيد من التفاصيل، يمكنك الاطلاع على سياسة الخصوصية الكاملة <a href="#" class="footer-links" data-translate-key="hereLink">هنا</a>.</p>
+                    </div>
+                     <div class="modal-button-group single-button">
+                        <button class="modal-button primary close-modal-btn" data-translate-key="gotItBtn">فهمت</button>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Step 2 (Confirmation - shown after Step 1 'Continue') -->
+            <div id="modal-step-2" style="display: none;">
+                 <h3 class="modal-subtitle" data-translate-key="welcomeConfirmTitle">تمت الموافقة</h3>
+                 <p class="confirmation-message" data-translate-key="welcomeConfirmMsg">هل ترغب برؤية رسائل التحديثات الرئيسية مستقبلًا؟</p>
+                 <div class="modal-button-group">
+                     <button id="show-again-btn" class="modal-button secondary" data-translate-key="yesBtn">نعم</button>
+                     <button id="dont-show-again-btn" class="modal-button tertiary" data-translate-key="noBtn">لا</button>
+                 </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- ==== End Welcome Modal ==== -->
+
+    <!-- ==== Microphone Permission Modal ==== -->
+    <div id="mic-permission-modal-overlay" class="modal-overlay">
+        <div id="mic-permission-modal-content" class="modal-content">
+            <div class="modal-icon"><i class="fas fa-microphone-alt"></i></div>
+            <h2 class="modal-title" data-translate-key="micPermissionTitle">إذن الميكروفون مطلوب</h2>
+            <div class="modal-body" data-translate-key="micPermissionDesc">
+                يحتاج NeuroX إلى الوصول إلى الميكروفون الخاص بك للاستماع إلى أوامرك الصوتية. لن يتم تسجيل أي شيء إلا عند الضغط على زر الميكروفون.
+            </div>
+            <div class="modal-button-group">
+                <button id="allow-mic-btn" class="modal-button primary" data-translate-key="allowBtn">السماح</button>
+                <button id="deny-mic-btn" class="modal-button tertiary" data-translate-key="denyBtn">رفض</button>
+            </div>
+        </div>
+    </div>
+    <!-- ==== End Mic Permission Modal ==== -->
+
+
+    <!-- ==== Main Page Content ==== -->
+    <div class="page-wrapper">
+        <!-- ==== Sidebar (iOS Style Sheet Modal) ==== -->
+        <aside id="history-sidebar" class="history-sidebar" aria-label="Conversation History">
+            <div class="sidebar-header">
+                <button id="settings-btn" class="sidebar-toggle-btn settings-btn" aria-label="Settings" data-translate-key="settingsLabel">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <h3 data-translate-key="historyTitle">السجل</h3>
+                <button id="close-sidebar-btn" class="sidebar-toggle-btn close-sidebar-btn" aria-label="Close" data-translate-key="closeLabel">
+                     <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- Settings Panel (Initially Hidden) -->
+             <div id="settings-panel" class="settings-panel">
+                 <h4 data-translate-key="languageLabel">اللغة</h4>
+                 <div class="language-selector">
+                     <button id="lang-ar-btn" class="language-btn" data-lang="ar" data-translate-key="langAr">العربية</button>
+                     <button id="lang-en-btn" class="language-btn" data-lang="en" data-translate-key="langEn">English</button>
+                 </div>
+             </div>
+            <!-- History List -->
+            <ul id="history-list" class="history-list">
+                <!-- Content generated by JS -->
+                <li class="history-empty" data-translate-key="historyEmpty">لا يوجد سجل حتى الآن.</li>
+            </ul>
+            <!-- Footer with Clear Button -->
+            <div class="sidebar-footer">
+                <button id="clear-history-btn" class="clear-history-btn" title="Clear History" data-translate-key="clearHistoryLabel">
+                    <i class="fas fa-trash"></i> <span data-translate-key="clearHistoryBtn">مسح السجل</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ==== Main Content ==== -->
+        <div class="main-container">
+            <!-- Header -->
+            <header class="main-header">
+                 <button id="open-sidebar-btn" class="header-button open-sidebar-btn" aria-label="Open History" aria-controls="history-sidebar" data-translate-key="openHistoryLabel">
+                    <i class="fa-regular fa-clock"></i>
+                 </button>
+                 <div class="header-title">
+                     <span class="logo-icon"><i class="fa-solid fa-brain"></i></span> NeuroX
+                 </div>
+                 <button id="theme-toggle-btn" class="header-button theme-toggle-btn" aria-label="Toggle Theme" data-translate-key="toggleThemeLabel">
+                    <i class="fa-solid fa-moon"></i> <!-- Icon updated by JS -->
+                 </button>
+            </header>
+
+            <!-- Interaction Zone -->
+            <main class="interaction-zone fade-in">
+                <div class="status-container">
+                    <div id="status-indicator" class="status-indicator">
+                        <span id="status-text" data-translate-key="statusTapToStart">انقر للبدء</span>
+                        <div class="loader-wrapper" id="loader-wrapper" style="display: none;">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Selector -->
+                <div class="voice-selector-container">
+                    <label for="voice-select" data-translate-key="voiceSelectLabel">اختر نبرة الصوت:</label>
+                    <select name="voices" id="voice-select">
+                        <option value="21m00Tcm4TlvDq8ikWAM">Default (Adam)</option>
+                        <option value="zrHiDhphv9ZnVXBqCL5L">Rachel - Calm American</option>
+                        <option value="EXAVITQu4vr4xnSDxMaL">Bella - Soft American</option>
+                        <option value="MF3mGyEYCl7XYWbV9V6O">Elli - Emotional American</option>
+                        <option value="TxGEqnHWrfWFTfGW9XjX">Josh - Deep American</option>
+                        <option value="ThT5KcBeYPX3keUQqHPh">Arnold - Crisp American</option>
+                        <option value="VR6AewLTigWG4xSOukaG">Domi - Strong Polish</option>
+                        <option value="yoZ06aMxZJJ28mfd3POQ">Fin - Stylish British</option>
+                    </select>
+                </div>
+                <!-- End Voice Selector -->
+
+                <div class="microphone-container">
+                    <button id="mic-button" class="mic-button" aria-label="Start Listening" data-translate-key="micBtnStartLabel">
+                        <div class="mic-icon-container">
+                             <i class="fas fa-microphone"></i> <!-- Icon updated by JS -->
+                        </div>
+                        <div class="pulse-effect"></div>
+                    </button>
+                </div>
+
+                <div id="output-area" class="output-area" aria-live="polite" role="log">
+                    <!-- Placeholder inserted by JS if empty -->
+                    <p class="placeholder" data-translate-key="outputPlaceholder">المحادثة تظهر هنا...</p>
+                </div>
+            </main>
+
+             <!-- Info Sections Combined -->
+            <section class="info-section fade-in" style="animation-delay: 0.2s;">
+                <h2 data-translate-key="infoCapabilitiesTitle">القدرات الأساسية</h2>
+                <div class="info-card-list">
+                    <div class="info-card">
+                        <div class="card-icon tech"><i class="fas fa-wave-square"></i></div>
+                        <div class="card-text">
+                            <h4 data-translate-key="infoCap1Title">التعرف على الكلام</h4>
+                            <p data-translate-key="infoCap1Desc">فهم دقيق لكلامك.</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon tech"><i class="fas fa-brain"></i></div>
+                        <div class="card-text">
+                            <h4 data-translate-key="infoCap2Title">فهم اللغة</h4>
+                            <p data-translate-key="infoCap2Desc">تحليل المعنى والقصد.</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon tech"><i class="fas fa-volume-high"></i></div>
+                        <div class="card-text">
+                            <h4 data-translate-key="infoCap3Title">توليد الكلام</h4>
+                            <p data-translate-key="infoCap3Desc">استجابات صوتية طبيعية.</p>
+                        </div>
+                    </div>
+                     <div class="info-card">
+                        <div class="card-icon feature"><i class="fas fa-memory"></i></div>
+                         <div class="card-text">
+                            <h4 data-translate-key="infoCap4Title">ذاكرة سياقية</h4>
+                            <p data-translate-key="infoCap4Desc">تذكر المحادثات السابقة.</p>
+                         </div>
+                    </div>
+                     <div class="info-card">
+                        <div class="card-icon feature"><i class="fas fa-shield-halved"></i></div>
+                         <div class="card-text">
+                            <h4 data-translate-key="infoCap5Title">خصوصية وأمان</h4>
+                            <p data-translate-key="infoCap5Desc">حماية بياناتك أولويتنا.</p>
+                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="platform-footer fade-in" style="animation-delay: 0.4s;">
+                 <div class="footer-links">
+                    <!-- Note: Keys are on the <a> -->
+                    <a href="#" data-translate-key="privacyLink">الخصوصية</a>
+                    <span class="link-separator">·</span>
+                    <a href="#" data-translate-key="termsLink">الشروط</a>
+                 </div>
+                 <!-- Year updated by JS -->
+                <p>© <span id="current-year"></span> NeuroX</p>
+            </footer>
+        </div><!-- End Main Content -->
+
+    </div><!-- End page-wrapper -->
+
+    <!-- Invisible Audio Element -->
+    <audio id="response-audio"></audio>
+
+    <script src="script.js" defer></script>
+    <script>
+        // Basic setup like year can remain here for quick execution
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentYearEl = document.getElementById('current-year');
+            if (currentYearEl) {
+                 currentYearEl.textContent = new Date().getFullYear();
+            }
+            // Main app logic is deferred to script.js
+        });
+    </script>
+
+</body>
+</html>
